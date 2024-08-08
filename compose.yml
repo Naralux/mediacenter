@@ -1,0 +1,201 @@
+name: MediaCenter
+services:
+  zurg:
+    image: ghcr.io/debridmediamanager/zurg-testing:latest
+    container_name: zurg
+    restart: unless-stopped
+    healthcheck:
+      test: curl -f localhost:9999/dav/version.txt || exit 1
+    ports:
+      - "9999:9999"
+    volumes:
+      - ./zurg.yml:/app/config.yml
+      - zurg_data:/app/data
+
+  rclone:
+    image: rclone/rclone:latest
+    container_name: rclone
+    restart: unless-stopped
+    environment:
+      - PUID=${RCLONE_UID}
+      - PGID=${MEDIACENTER_GID}
+      - TZ=${TIMEZONE}
+      - UMASK=002
+    volumes:
+      - ${ROOT_DIR}/data/realdebrid-zurg:/data:rshared
+      - ./rclone.conf:/config/rclone/rclone.conf
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    devices:
+      - /dev/fuse:/dev/fuse:rwm
+    depends_on:
+      zurg:
+        condition: service_healthy
+        restart: true
+    command: "mount zurg: /data --allow-non-empty --allow-other --uid=${RCLONE_UID} --gid=${MEDIACENTER_GID} --umask=002 --dir-cache-time 10s --vfs-cache-mode full"
+
+  rdtclient:
+    image: rogerfar/rdtclient:latest
+    container_name: rdtclient
+    environment:
+      - PUID=${RDTCLIENT_UID}
+      - PGID=${MEDIACENTER_GID}
+      - UMASK=002
+      - TZ=${TIMEZONE}
+    ports:
+      - "6500:6500"
+    volumes:
+      - ${ROOT_DIR}/data:/data
+      - ${ROOT_DIR}/config/rdt-config:/data/db
+    restart: unless-stopped
+    depends_on:
+      - rclone
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=${SONARR_UID}
+      - PGID=${MEDIACENTER_GID}
+      - UMASK=002
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ROOT_DIR}/config/sonarr-config:/config
+      - ${ROOT_DIR}/data:/data
+    ports:
+      - "8989:8989"
+    restart: unless-stopped
+    depends_on:
+      - rclone
+
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=${RADARR_UID}
+      - PGID=${MEDIACENTER_GID}
+      - UMASK=002
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ROOT_DIR}/config/radarr-config:/config
+      - ${ROOT_DIR}/data:/data
+    ports:
+      - "7878:7878"
+    restart: unless-stopped
+    depends_on:
+      - rclone
+
+  recyclarr:
+    image: ghcr.io/recyclarr/recyclarr:latest
+    container_name: recyclarr
+    user: ${RECYCLARR_UID}:${MEDIACENTER_GID}
+    volumes:
+      - ${ROOT_DIR}/config/recyclarr-config:/config
+    environment:
+      - TZ=${TIMEZONE}
+      - RECYCLARR_CREATE_CONFIG=true
+    restart: unless-stopped
+    depends_on:
+      - radarr
+      - sonarr
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:develop
+    container_name: prowlarr
+    environment:
+      - PUID=${PROWLARR_UID}
+      - PGID=${MEDIACENTER_GID}
+      - UMASK=002
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ROOT_DIR}/config/prowlarr-config:/config
+    ports:
+      - "9696:9696"
+    restart: unless-stopped
+    depends_on:
+      - rclone
+
+  overseerr:
+    image: sctx/overseerr:latest
+    container_name: overseerr
+    environment:
+      - PUID=${OVERSEERR_UID}
+      - PGID=${MEDIACENTER_GID}
+      - UMASK=002
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ROOT_DIR}/config/overseerr-config:/app/config
+    ports:
+      - "5055:5055"
+    restart: unless-stopped
+    depends_on:
+      - radarr
+      - sonarr
+      - prowlarr
+
+  plex:
+    image: lscr.io/linuxserver/plex:latest
+    container_name: plex
+    network_mode: host
+    environment:
+      - PUID=${PLEX_UID}
+      - PGID=${MEDIACENTER_GID}
+      - VERSION=docker
+      - PLEX_CLAIM=${PLEX_CLAIM}
+    volumes:
+      - ${ROOT_DIR}/config/plex-config:/config
+      - ${ROOT_DIR}/data:/data
+    restart: unless-stopped
+    depends_on:
+      - rclone
+
+  zilean:
+    image: ipromknight/zilean:latest
+    restart: unless-stopped
+    container_name: zilean
+    ports:
+      - "8181:8181"
+    volumes:
+      - zilean_data:/app/data
+    environment:
+        Zilean__ElasticSearch__Url: http://elasticsearch:9200
+        Zilean__Dmm__MinimumScoreMatch: 40
+    healthcheck:
+      test: curl --connect-timeout 10 --silent --show-error --fail http://localhost:8181/healthchecks/ping
+      timeout: 60s
+      interval: 30s
+      retries: 10
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  elasticsearch:
+    image: elasticsearch:8.14.1@sha256:ff3998ab3d8a84984e5298d33d01a174fc5f8abed15ad58d0a54364fc63d68d9
+    container_name: elasticsearch
+    environment:
+      ES_SETTING_DISCOVERY_TYPE: single-node
+      ES_SETTING_XPACK_SECURITY_ENABLED: false
+      ES_SETTING_BOOTSTRAP_MEMORY__LOCK: true
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    healthcheck:
+      test: curl -s http://localhost:9200 >/dev/null || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 10
+    volumes:
+      - elastic_data:/usr/share/elasticsearch/data:rw
+
+volumes:
+  zurg_data:
+  zilean_data:
+  elastic_data:

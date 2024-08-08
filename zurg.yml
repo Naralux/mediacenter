@@ -1,0 +1,31 @@
+# Zurg configuration version
+zurg: v1
+token: API_KEY_GOES_HERE # https://real-debrid.com/apitoken
+# host: "[::]"
+# port: 9999
+# username:
+# password:
+# proxy:
+concurrent_workers: 32
+check_for_changes_every_secs: 10
+# repair_every_mins: 60
+ignore_renames: true
+retain_rd_torrent_name: true
+retain_folder_name_extension: true
+enable_repair: false
+auto_delete_rar_torrents: false
+get_torrents_count: 5000
+# api_timeout_secs: 15
+# download_timeout_secs: 10
+# enable_download_mount: false
+# rate_limit_sleep_secs: 6
+# retries_until_failed: 2
+# network_buffer_size: 4194304 # 4MB
+# serve_from_rclone: false
+# verify_download_link: false
+# force_ipv6: false
+directories:
+  torrents:
+    group: 1
+    filters:
+      - regex: /.*/
