@@ -20,7 +20,9 @@ I'm just sharing my learnings, because there will undoubtedly be others who can 
 - Docker Compose. Tested on version 2.29.1.
 
 ## My Setup
-I'm running this stack in a Ubuntu Server (24.04 LTS) Virtual Machine (8GB RAM, 50GB (is overkill, but just to be sure) disk) on a Proxmox node. Make sure the IP is static. You can probably(?) get this stack to work using LXC, but I haven't tried it.
+I'm running this stack in a Ubuntu Server (24.04 LTS) Virtual Machine (8GB RAM, 50GB disk (you don't need 50GB)) on a Proxmox node. Make sure the IP is static. You can probably(?) get this stack to work using LXC, but I haven't tried it.
+
+I consume media exclusively via the Plex App on a Nvidia Shield Pro that Direct Plays almost all types of formats. My Radarr/Sonarr quality profiles are tweaked in such a way that I only grab content that my setup can Direct Play.
 
 # Stack
 - [Zurg](https://github.com/debridmediamanager/zurg-testing)
@@ -111,6 +113,7 @@ __If you are new to the *Arr stack, you must read the [Servarr Wiki](https://wik
     - Configure tv library to point to `/data/media/tv`.
 
 # Plans
+- Expand instructions on Recyclarr and include a default, TRaSH-based, config for optional use.
 - Add Autoscan to the stack to refresh Plex once new media is added by Radarr/Sonarr.
 
 # Interesting Reads + Credits
