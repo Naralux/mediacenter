@@ -56,8 +56,11 @@ Visual representation (Credits to ElfHosted):
 
 ![Visualized flow. Credits to ElfHosted.](./images/flow-visualization.png)
 
+Requesting via Plex Watchlist is not (yet?) supported in this setup.
 # Setup - (WIP - Rough Outline)
-__The most important thing is to get the permissions right. If files don't show up inside containers, it is most likely a permissions problem.__
+__The most important thing is to get the permissions (775/664, umask 002) right. If files don't show up inside containers, it is most likely a permissions problem.__
+
+__The filesystem is designed to allow for [hardlinking](https://trash-guides.info/Hardlinks/Hardlinks-and-Instant-Moves/), as per the [Servarr Wiki recommendation](https://wiki.servarr.com/docker-guide#consistent-and-well-planned-paths).__
 
 __If you are new to the *Arr stack, you must read the [Servarr Wiki](https://wiki.servarr.com/)!__
 
