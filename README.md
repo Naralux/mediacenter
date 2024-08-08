@@ -50,7 +50,7 @@ In a nutshell:
 - Radarr/Sonarr continues processing as if the file exists locally and moves it to the media folder.
 - Plex reads the file symlinks in the media folder. The symlinks resolve to the file in the Rclone mounted filesystem.
 
-Visual representation:
+Visual representation (Credits to ElfHosted):
 
 ![Visualized flow. Credits to ElfHosted.](./images/flow-visualization.png)
 
@@ -106,7 +106,12 @@ __If you are new to the *Arr stack, you must read the [Servarr Wiki](https://wik
     - If you want to use Torrentio and/or Zilean:
         - Grab the files from [here](https://github.com/dreulavelle/Prowlarr-Indexers/tree/main/Custom) and place them inside `${ROOT_DIR}/config/prowlarr-config/Definitions/Custom/`.
     - Configure indexers.
+12. Setup Plex.
+    - Configure movie library to point to `/data/media/movies`.
+    - Configure tv library to point to `/data/media/tv`.
 
+# Plans
+- Add Autoscan to the stack to refresh Plex once new media is added by Radarr/Sonarr.
 
 # Interesting Reads + Credits
 - [Servarr Wiki](https://wiki.servarr.com/). Especially the [Docker Guide](https://wiki.servarr.com/docker-guide).
