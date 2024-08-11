@@ -128,6 +128,7 @@ Tweak the profiles to your needs or create your own from scratch. Consult the [R
 Place the file `./recyclarr/recyclarr.yaml` in `${ROOT_DIR}/config/recyclarr-config/`. If docker compose is already running, run the following command: `docker compose exec recyclarr recyclarr sync` and monitor the output.
 
 # Interesting Reads + Credits
+- All the authors of the tools used in the stack. 
 - [Servarr Wiki](https://wiki.servarr.com/). Especially the [Docker Guide](https://wiki.servarr.com/docker-guide).
 - [ElfHosted's article](https://elfhosted.com/guides/media/stream-from-real-debrid-with-plex-radarr-sonarr-prowlarr/) that was my inspiration to try this myself.
 - [Sailarr's Guide](https://savvyguides.wiki/sailarrsguide/).
