@@ -35,6 +35,7 @@ I consume media exclusively via the Plex App on a Nvidia Shield Pro that Direct 
 - [Prowlarr](https://prowlarr.com/)
 - [Zilean](https://github.com/iPromKnight/zilean)
 - [Plex](https://www.plex.tv/)
+- [Autoscan](https://github.com/saltydk/autoscan)
 
 Read the dedicated tool pages linked above to learn more about their function and configuration.
 
@@ -50,15 +51,15 @@ In a nutshell:
     - Checks if the file is available on your filesystem (which is mounted by Rclone, remember).
     - Creates symlinks to Radarr/Sonarr's `completed` directory.
 - Radarr/Sonarr continues processing as if the file exists locally and moves it to the media folder.
+- Autoscan is triggered by Radarr/Sonarr and pushes a library refresh to Plex.
 - Plex reads the file symlinks in the media folder. The symlinks resolve to the file in the Rclone mounted filesystem.
 
-Visual representation (Credits to ElfHosted):
+Visual representation (credits to ElfHosted):
 
 ![Visualized flow. Credits to ElfHosted.](./images/flow-visualization.png)
 
-Requesting via Plex Watchlist is not (yet?) supported in this setup.
 # Setup - (WIP - Rough Outline)
-__The most important thing is to get the permissions (775/664, umask 002) right. If files don't show up inside containers, it is most likely a permissions problem.__
+__The most important thing is to get the permissions (775/664, umask 002) right. If files don't show up inside containers, it is most likely a permissions problem. If you decide to run everything as one user, use 755/644 umask 022 and tweak the necessary files as needed__
 
 __The filesystem is designed to allow for [hardlinking](https://trash-guides.info/Hardlinks/Hardlinks-and-Instant-Moves/), as per the [Servarr Wiki recommendation](https://wiki.servarr.com/docker-guide#consistent-and-well-planned-paths).__
 
@@ -97,12 +98,12 @@ __If you are new to the *Arr stack, you must read the [Servarr Wiki](https://wik
         - *(Unsure if these settings shoulds also be set on the Provider and GUI Defaults setting pages)*
 8. Setup Radarr:
     - Consult the Servarr Wiki for guidance if needed.
-    - Just follow the [TRaSH-Guides](https://trash-guides.info/Radarr/) for sensible defaults.
+    - Just follow the [TRaSH-Guides](https://trash-guides.info/Radarr/) for sensible defaults when setting up Quality Profiles, or see [Recyclarr Profile](#recyclarr-profile).
     - Set your Root Folder to `/data/media/movies`.
     - Take note of your API key under Settings -> General -> API Key.
 9. Setup Sonarr:
     - Consult the Servarr Wiki for guidance if needed.
-    - Just follow the [TRaSH-Guides](https://trash-guides.info/Sonarr/) for sensible defaults.
+    - Just follow the [TRaSH-Guides](https://trash-guides.info/Sonarr/) for sensible defaults when setting up Quality Profiles, or see [Recyclarr Profile](#recyclarr-profile).
     - Set your Root Folder to `/data/media/tv`.
     - Take note of your API key under Settings -> General -> API Key.
 10. Setup Overseerr.
@@ -111,13 +112,20 @@ __If you are new to the *Arr stack, you must read the [Servarr Wiki](https://wik
     - If you want to use Torrentio and/or Zilean:
         - Grab the files from [here](https://github.com/dreulavelle/Prowlarr-Indexers/tree/main/Custom) and place them inside `${ROOT_DIR}/config/prowlarr-config/Definitions/Custom/`.
     - Configure indexers.
-12. Setup Plex.
+12. Setup Autoscan.
+    - Place the file `./autoscan/config.yml` in `${ROOT_DIR}/config/autoscan-config`.
+    - Tweak the config if necessary.
+    - Follow the instructions on the [GitHub repo](https://github.com/saltydk/autoscan?tab=readme-ov-file#the--arrs) to connect Radarr/Sonarr to Autoscan.
+13. Setup Plex.
     - Configure movie library to point to `/data/media/movies`.
     - Configure tv library to point to `/data/media/tv`.
 
-# Plans
-- Expand instructions on Recyclarr and include a default, TRaSH-based, config for optional use.
-- Add Autoscan to the stack to refresh Plex once new media is added by Radarr/Sonarr.
+## Recyclarr Profile
+Included in this repo is a `recyclarr.yml` file that will sync two quality profiles to Radarr and Sonarr. One for 1080p and one for 2160p. Out of the box these profiles will accept every type of release for each resolution. E.g. the 1080p profile will accept everything from `HDTV-1080p` all the way up to `REMUX-1080p`, but prefers the highest quality.
+
+Tweak the profiles to your needs or create your own from scratch. Consult the [Recyclarr website](https://recyclarr.dev/) for guidance.
+
+Place the file `./recyclarr/recyclarr.yaml` in `${ROOT_DIR}/config/recyclarr-config/`. If docker compose is already running, run the following command: `docker compose exec recyclarr recyclarr sync` and monitor the output.
 
 # Interesting Reads + Credits
 - [Servarr Wiki](https://wiki.servarr.com/). Especially the [Docker Guide](https://wiki.servarr.com/docker-guide).

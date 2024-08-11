@@ -30,6 +30,12 @@ services:
       - apparmor:unconfined
     devices:
       - /dev/fuse:/dev/fuse:rwm
+    healthcheck:
+      test: sh -c "[ -f /data/version.txt ]"
+      interval: 10s
+      retries: 3
+      start_period: 5s
+      timeout: 5s
     depends_on:
       zurg:
         condition: service_healthy
