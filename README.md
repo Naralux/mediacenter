@@ -121,7 +121,7 @@ __If you are new to the *Arr stack, you must read the [Servarr Wiki](https://wik
     - Configure tv library to point to `/data/media/tv`.
 
 ## Recyclarr Profile
-Included in this repo is a `recyclarr.yml` file that will sync two quality profiles to Radarr and Sonarr. One for 1080p and one for 2160p. Out of the box these profiles will accept every type of release for each resolution. E.g. the 1080p profile will accept everything from `HDTV-1080p` all the way up to `REMUX-1080p`, but prefers the highest quality.
+Included in this repo is a `recyclarr.yml` file that will sync two quality profiles to Radarr and Sonarr. One for 1080p and one for 2160p. Out of the box these profiles will accept every type of quality for each resolution. E.g. the 1080p profile will accept everything from `HDTV-1080p` all the way up to `REMUX-1080p`, but prefers the highest quality.
 
 Tweak the profiles to your needs or create your own from scratch. Consult the [Recyclarr website](https://recyclarr.dev/) for guidance.
 
