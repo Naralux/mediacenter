@@ -72,7 +72,7 @@ __If you are new to the *Arr stack, you must read the [Servarr Wiki](https://wik
     - `sudo chmod +x setup.sh` if it is not executable.
 4. Reboot (virtual) machine.
 5. Run `docker compose up -d`.
-6. The first time you do this, `Zilean` is going to need some time to fill its Elasticsearch database.
+6. The first time you do this, `Zilean` is going to need some time to fill its database.
     - Follow progress with `docker compose logs zilean -f`
     - Continue when finished.
     - Why Zilean? Before Zilean I only used Torrentio, but practically zero series made it through the quality gates as prescribed by TRaSH-Guide. There appear to be some issues with the way Torrentio reports file sizes for season packs. You can of course use your preferred indexer instead and remove Zilean from the stack.
