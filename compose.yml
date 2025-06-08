@@ -65,7 +65,7 @@ services:
       zurg:
         condition: service_healthy
         restart: true
-    command: "mount zurg: /data --allow-non-empty --allow-other --uid=${RCLONE_UID} --gid=${MEDIACENTER_GID} --umask=002 --dir-cache-time 10s --vfs-cache-mode full"
+    command: "mount zurg: /data --allow-non-empty --allow-other --async-read=true --timeout=10m --log-level=INFO --uid=${RCLONE_UID} --gid=${MEDIACENTER_GID} --umask=002 --dir-cache-time=15s --poll-interval=15s --buffer-size=48M --vfs-cache-mode=full --vfs-read-ahead=96M --vfs-read-chunk-size=32M --vfs-read-chunk-size-limit=32M --vfs-cache-max-age=672h --vfs-cache-poll-interval=15s --vfs-cache-max-size=5G --vfs-fast-fingerprint --vfs-refresh"
 
   rdtclient:
     image: rogerfar/rdtclient:latest
@@ -205,7 +205,7 @@ services:
       - plex
 
   zilean:
-   image: ipromknight/zilean:v3.3.3
+   image: ipromknight/zilean:v3.5.0
    container_name: zilean
    tty: true
    volumes:

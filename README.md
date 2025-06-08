@@ -10,7 +10,7 @@ __Also check out [Riven](https://github.com/rivenmedia/riven).__
 # Purpose
 The purpose of this stack is to create a functioning stack of *Arr powered tools that allow for the streaming of cached torrents via Real-Debrid. All of this using Docker Containers.
 
-I have never cared much for filling a NAS with media. I don't collect/curate media, I merely consume. This stack of tools is setup in a way that favors consumption. Perhaps it is possible to combine it with a setup of locally stored files, but I will leave that up to you to figure out.
+I have never cared much for filling a NAS with media, since I don't collect/curate media. This stack of tools favors consumption instead of collection. It is possible to combine it with a library of locally stored files, but I will leave that up to you to figure out.
 
 The other purpose is purely personal: learning about the *Arrs and how I can make this entire stack work together. I'm not committed to this setup.
 
@@ -18,13 +18,12 @@ I'm just sharing my learnings, because there will undoubtedly be others who can 
 
 # Requirements
 - Active [Real-Debrid](https://real-debrid.com/) subscription and your [API key](https://real-debrid.com/apitoken).
-- Docker Engine. Tested on version 27.1.1 (preferably with your user added to the `docker` group).
-- Docker Compose. Tested on version 2.29.1.
+- Docker Engine + Docker Compose.
 
 ## My Setup
-I'm running this stack in a Ubuntu Server (24.04 LTS) Virtual Machine (8GB RAM, 50GB disk (you don't need 50GB)) on a Proxmox node. Make sure the IP is static. You can probably(?) get this stack to work using LXC, but I haven't tried it.
+I'm running this stack on a Ubuntu Server (24.04 LTS) Virtual Machine (8GB RAM, 50GB disk (you don't need 50GB, can be less)) on a Proxmox node. Make sure the IP is static.
 
-I consume media exclusively via the Plex App on a Nvidia Shield Pro that Direct Plays almost all types of formats. My Radarr/Sonarr quality profiles are tweaked in such a way that I only grab content that my setup can Direct Play.
+I play media exclusively via the Plex App on a Nvidia Shield Pro that Direct Plays almost all types of formats. My Radarr/Sonarr quality profiles are tweaked in such a way that I only grab content that my setup can Direct Play. If your setup requires transcoding search for additional guides online on setting up Plex in Docker with hardware transcoding enabled, this setup does NOT support hardware transcoding as-is.
 
 # Stack
 - [Zurg](https://github.com/debridmediamanager/zurg-testing)
@@ -75,11 +74,10 @@ __If you are new to the *Arr stack, you must read the [Servarr Wiki](https://wik
     - `sudo chmod +x setup.sh` if it is not executable.
 4. Reboot (virtual) machine.
 5. The first time you run the stack `Zilean` is going to need some time to fill its database.
+    - *(You can of course use your preferred indexer instead and remove Zilean from the stack.)*
     - Configure `Zilean` by editing/creating `${ROOT_DIR}/config/zilean-config/settings.json`. See [wiki](https://ipromknight.github.io/zilean/configuration.html) for guidance.
-    - Why Zilean? Before Zilean I only used Torrentio, but practically zero series made it through the quality gates as prescribed by TRaSH-Guide. There appear to be some issues with the way Torrentio reports file sizes for season packs. You can of course use your preferred indexer instead and remove Zilean from the stack.
 6. Run `docker compose up -d`.
-    - Follow `Zilean` progress with `docker compose logs zilean -f`
-    - Continue when finished (could take >1H).
+    - If you decided to keep Zilean and have enabled its IMDB Matching functionality, this first run can take VERY long (>1.5 DAYS!).
 7. Setup RDTClient:
     - Settings -> General:
         - Maximum parallel downloads = `100`
@@ -89,7 +87,7 @@ __If you are new to the *Arr stack, you must read the [Servarr Wiki](https://wik
         - Download Client = `Symlink Downloader`
         - Download path = `/data/symlinks`
         - Mapped path = `/data/symlinks`
-        - Rclone mount path = `/data/realdebrid-zurg/__all__`
+        - Rclone mount path = `/data/realdebrid-zurg/torrents/*`
     - Settings -> Provider:
         - Provider = `RealDebrid`
         - API Key = `*Your API Key*`
@@ -97,9 +95,8 @@ __If you are new to the *Arr stack, you must read the [Servarr Wiki](https://wik
         - Post Torrent Download Action = `Download all files to host`
         - Post Download Action = `No Action`
         - Only download available files on debrid provider = `checked`
-        - Minimum file size to download = `5`
-        - Automatic retry downloadds = `5`
-        - *(Unsure if these settings shoulds also be set on the Provider and GUI Defaults setting pages)*
+        - Minimum file size to download = `50`
+        - *(Unsure if these settings should also be set on the Provider and GUI Defaults setting pages, but it doesn't hurt to do so)*
 8. Setup Radarr:
     - Consult the Servarr Wiki for guidance if needed.
     - Just follow the [TRaSH-Guides](https://trash-guides.info/Radarr/) for sensible defaults when setting up Quality Profiles, or see [Recyclarr Profile](#recyclarr-profile).
@@ -128,7 +125,7 @@ __If you are new to the *Arr stack, you must read the [Servarr Wiki](https://wik
 ## Recyclarr Profile
 Included in this repo is a `recyclarr.yml` file that will sync two quality profiles to Radarr and Sonarr. One for 1080p and one for 2160p. Out of the box these profiles will accept every type of quality for each resolution. E.g. the 1080p profile will accept everything from `HDTV-1080p` all the way up to `REMUX-1080p`, but prefers the highest quality.
 
-Tweak the profiles to your needs or create your own from scratch. Consult the [Recyclarr website](https://recyclarr.dev/) for guidance.
+Tweak the profiles to your needs (like changing the `until_score`) or create your own from scratch. Consult the [Recyclarr website](https://recyclarr.dev/) for guidance.
 
 Place the file `./recyclarr/recyclarr.yaml` in `${ROOT_DIR}/config/recyclarr-config/`. If docker compose is already running, run the following command: `docker compose exec recyclarr recyclarr sync` and monitor the output.
 
