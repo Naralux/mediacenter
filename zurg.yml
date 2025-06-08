@@ -1,31 +1,47 @@
 # Zurg configuration version
 zurg: v1
-token: API_KEY_GOES_HERE # https://real-debrid.com/apitoken
-# host: "[::]"
-# port: 9999
+
+# Provide your Real-Debrid API token
+token: API_TOKEN_GOES_HERE # https://real-debrid.com/apitoken
+
+# Host and port settings
+host: "[::]"
+port: 9999
+
+# Authentication (if required)
 # username:
 # password:
+
+# Proxy settings (if needed)
 # proxy:
-concurrent_workers: 32
-check_for_changes_every_secs: 10
-# repair_every_mins: 60
-ignore_renames: true
+
+# concurrent_workers: 32
+
+# Checking for changes in Real-Debrid API more frequently (every 60 seconds)
+check_for_changes_every_secs: 60
+
+# File handling and renaming settings
 retain_rd_torrent_name: true
 retain_folder_name_extension: true
-enable_repair: false
-auto_delete_rar_torrents: false
-get_torrents_count: 5000
-# api_timeout_secs: 15
-# download_timeout_secs: 10
-# enable_download_mount: false
-# rate_limit_sleep_secs: 6
-# retries_until_failed: 2
-# network_buffer_size: 4194304 # 4MB
-# serve_from_rclone: false
-# verify_download_link: false
-# force_ipv6: false
+expose_full_path: false
+
+# Torrent management settings
+enable_repair: true
+auto_delete_rar_torrents: true
+
+# Streaming and download link verification settings
+serve_from_rclone: false
+verify_download_link: false
+
+# Network and API settings
+force_ipv6: false
+
+# Library update script configuration
+# on_library_update: sh plex_update.sh "$@"
+
 directories:
   torrents:
     group: 1
     filters:
       - regex: /.*/
+
